@@ -1,0 +1,36 @@
+<div class="page-head">
+  <div>
+    <h1>Stats</h1>
+    <p class="subtitle">Spending patterns and trends over time</p>
+  </div>
+</div>
+
+<div class="charts-grid">
+  <section class="panel glass">
+    <h2>Expense Breakdown</h2>
+    <app-donut-chart
+      [items]="expenseChartItems()"
+      centerLabel="Spent"
+      [centerValue]="expenseLabel()"
+    />
+  </section>
+
+  <section class="panel glass">
+    <h2>6-Month Trend</h2>
+    <div class="trend-chart">
+      @for (point of trend(); track point.label) {
+        <div class="trend-col">
+          <div class="bars">
+            <div class="bar income" [style.height.%]="point.incomeHeight"></div>
+            <div class="bar expense" [style.height.%]="point.expenseHeight"></div>
+          </div>
+          <span class="trend-label">{{ point.label }}</span>
+        </div>
+      }
+    </div>
+    <div class="trend-legend">
+      <span><i class="dot income"></i>Income</span>
+      <span><i class="dot expense"></i>Expense</span>
+    </div>
+  </section>
+</div>

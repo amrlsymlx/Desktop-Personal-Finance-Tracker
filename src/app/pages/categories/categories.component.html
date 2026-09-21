@@ -1,0 +1,108 @@
+<div class="page-head">
+  <div>
+    <h1>Categories</h1>
+    <p class="subtitle">Organize and reorder how categories appear when you add a transaction</p>
+  </div>
+</div>
+
+<section class="panel glass">
+  <div class="type-toggle">
+    <button
+      type="button"
+      class="toggle-btn expense"
+      [class.active]="activeType() === 'expense'"
+      (click)="setType('expense')"
+    >
+      Expense
+    </button>
+    <button
+      type="button"
+      class="toggle-btn income"
+      [class.active]="activeType() === 'income'"
+      (click)="setType('income')"
+    >
+      Income
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="cat-alert">
+      <span>{{ error() }}</span>
+      <button type="button" (click)="dismissError()">✕</button>
+    </div>
+  }
+
+  @if (mode() === "list") {
+    <div class="cat-list" cdkDropList [cdkDropListData]="list()" (cdkDropListDropped)="drop($event)">
+      @for (cat of list(); track cat.id) {
+        <div class="cat-row" cdkDrag>
+          <span class="cat-drag-handle" cdkDragHandle>⠿</span>
+          <span class="cat-icon" [style.background]="cat.color + '22'">{{ cat.icon }}</span>
+          <span class="cat-name">{{ cat.name }}</span>
+          <div class="cat-actions">
+            <button type="button" (click)="startEdit(cat)" title="Edit">✎</button>
+            <button type="button" class="danger" (click)="deleteCategory(cat, $event)" title="Delete">🗑</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <button type="button" class="btn primary add-cat-btn" (click)="startAdd()">
+      + Add Category
+    </button>
+  } @else {
+    <form (ngSubmit)="saveForm()" class="cat-form">
+      <h3>{{ editing() ? "Edit Category" : "New Category" }}</h3>
+
+      <label class="field">
+        <span>Category Name</span>
+        <input
+          type="text"
+          placeholder="e.g. Subscriptions"
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+          name="name"
+          required
+        />
+      </label>
+
+      <div class="field">
+        <span>Icon</span>
+        <div class="icon-grid">
+          @for (i of icons; track i) {
+            <button
+              type="button"
+              class="icon-swatch"
+              [class.active]="icon() === i"
+              (click)="icon.set(i)"
+            >
+              {{ i }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <span>Color</span>
+        <div class="color-grid">
+          @for (c of colors; track c) {
+            <button
+              type="button"
+              class="color-swatch"
+              [class.active]="color() === c"
+              [style.background]="c"
+              (click)="color.set(c)"
+            ></button>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="cancelForm()">Cancel</button>
+        <button type="submit" class="btn primary">
+          {{ editing() ? "Save Changes" : "Add Category" }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

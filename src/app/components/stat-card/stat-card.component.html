@@ -1,0 +1,18 @@
+<div class="stat-card" [class]="tone()">
+  <div class="stat-icon">{{ icon() }}</div>
+  <div class="stat-body">
+    <span class="stat-label">{{ label() }}</span>
+    <span class="stat-value">{{ value() }}</span>
+    @if (sub()) {
+      <span class="stat-sub">{{ sub() }}</span>
+    }
+    @if (errorValue()) {
+      <div class="stat-error">
+        <span class="stat-error-value">Error {{ errorValue() }}</span>
+        @if (errorHint()) {
+          <span class="stat-error-hint">{{ errorHint() }}</span>
+        }
+      </div>
+    }
+  </div>
+</div>

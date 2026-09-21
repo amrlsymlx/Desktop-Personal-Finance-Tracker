@@ -1,0 +1,46 @@
+@if (open()) {
+  <div class="backdrop" (click)="cancel()">
+    <div class="modal modal-surface" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Update Wallet Balances</h3>
+        <button class="icon-btn" (click)="cancel()" type="button">✕</button>
+      </div>
+
+      <p class="hint">
+        Enter each wallet's real-world balance to check it against what MyFin has
+        calculated from your transactions.
+      </p>
+
+      <form (ngSubmit)="submit()">
+        <div class="balance-rows">
+          @for (acc of accountsSvc.accountsWithBalance(); track acc.id) {
+            <div class="balance-row">
+              <span class="row-icon" [style.background]="acc.color + '22'">{{ acc.icon }}</span>
+              <div class="row-info">
+                <span class="row-name">{{ acc.name }}</span>
+                <span class="row-calc">Calculated: {{ formatCurrency(acc.balance) }}</span>
+              </div>
+              <div class="row-input">
+                <input
+                  type="number"
+                  step="0.01"
+                  [ngModel]="values()[acc.id] ?? ''"
+                  (ngModelChange)="setValue(acc.id, $event)"
+                  [name]="'balance-' + acc.id"
+                />
+                @if (variance(acc.id, acc.balance); as v) {
+                  <span class="row-variance" [class.off]="v.isOff">{{ v.label }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn primary">Save Balances</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

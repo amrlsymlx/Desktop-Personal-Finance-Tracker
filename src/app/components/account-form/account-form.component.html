@@ -1,0 +1,74 @@
+@if (open()) {
+  <div class="backdrop" (click)="cancel()">
+    <div class="modal modal-surface" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ editing() ? "Edit Wallet" : "New Wallet" }}</h3>
+        <button class="icon-btn" (click)="cancel()" type="button">✕</button>
+      </div>
+
+      <form (ngSubmit)="submit()">
+        <label class="field">
+          <span>Wallet Name</span>
+          <input
+            type="text"
+            placeholder="e.g. Maybank Savings"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            name="name"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Starting Balance</span>
+          <input
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            [ngModel]="startingBalance()"
+            (ngModelChange)="startingBalance.set($event)"
+            name="startingBalance"
+          />
+        </label>
+
+        <div class="field">
+          <span>Icon</span>
+          <div class="icon-grid">
+            @for (i of icons; track i) {
+              <button
+                type="button"
+                class="icon-swatch"
+                [class.active]="icon() === i"
+                (click)="icon.set(i)"
+              >
+                {{ i }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <span>Color</span>
+          <div class="color-grid">
+            @for (c of colors; track c) {
+              <button
+                type="button"
+                class="color-swatch"
+                [class.active]="color() === c"
+                [style.background]="c"
+                (click)="color.set(c)"
+              ></button>
+            }
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn primary">
+            {{ editing() ? "Save Changes" : "Add Wallet" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

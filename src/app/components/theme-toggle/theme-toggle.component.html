@@ -1,0 +1,10 @@
+<button
+  type="button"
+  class="theme-toggle"
+  (click)="theme.toggle()"
+  [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  <span class="icon sun">☀</span>
+  <span class="icon moon">☾</span>
+  <span class="knob" [class.light]="theme.theme() === 'light'"></span>
+</button>

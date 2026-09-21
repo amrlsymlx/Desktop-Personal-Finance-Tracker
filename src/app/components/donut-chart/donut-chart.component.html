@@ -1,0 +1,37 @@
+<div class="donut-wrap">
+  @if (items().length) {
+    <div class="donut-svg">
+      <svg viewBox="0 0 140 140">
+        <circle class="track" cx="70" cy="70" [attr.r]="radius" />
+        @for (seg of segments(); track seg.label) {
+          <circle
+            class="segment"
+            cx="70"
+            cy="70"
+            [attr.r]="radius"
+            [attr.stroke]="seg.color"
+            [style.stroke-dasharray]="seg.dashArray"
+            [style.stroke-dashoffset]="seg.dashOffset"
+            [style.--glow-color]="seg.color"
+          />
+        }
+      </svg>
+      <div class="donut-center">
+        <span class="center-value">{{ centerValue() }}</span>
+        <span class="center-label">{{ centerLabel() }}</span>
+      </div>
+    </div>
+    <ul class="legend">
+      @for (item of items(); track item.label) {
+        <li>
+          <span class="dot" [style.background]="item.color"></span>
+          <span class="legend-icon">{{ item.icon }}</span>
+          <span class="legend-label">{{ item.label }}</span>
+          <span class="legend-percent">{{ item.percent.toFixed(0) }}%</span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <div class="empty-chart">No data yet</div>
+  }
+</div>

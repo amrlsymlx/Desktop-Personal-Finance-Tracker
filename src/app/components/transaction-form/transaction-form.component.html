@@ -1,0 +1,120 @@
+@if (open()) {
+  <div class="backdrop" (click)="cancel()">
+    <div class="modal modal-surface" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ editing() ? "Edit Transaction" : "New Transaction" }}</h3>
+        <button class="icon-btn" (click)="cancel()" type="button">✕</button>
+      </div>
+
+      <div class="type-toggle">
+        <button
+          type="button"
+          class="toggle-btn expense"
+          [class.active]="type() === 'expense'"
+          (click)="setType('expense')"
+        >
+          Expense
+        </button>
+        <button
+          type="button"
+          class="toggle-btn income"
+          [class.active]="type() === 'income'"
+          (click)="setType('income')"
+        >
+          Income
+        </button>
+      </div>
+
+      <form (ngSubmit)="submit()">
+        <label class="field">
+          <span>Wallet</span>
+          <select
+            [ngModel]="accountId()"
+            (ngModelChange)="accountId.set($event)"
+            name="accountId"
+          >
+            @for (a of accountsSvc.accounts(); track a.id) {
+              <option [value]="a.id">{{ a.icon }} {{ a.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Amount</span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            [ngModel]="amount()"
+            (ngModelChange)="amount.set($event)"
+            name="amount"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Category</span>
+          <select
+            [ngModel]="category()"
+            (ngModelChange)="category.set($event)"
+            name="category"
+          >
+            @for (c of categories(); track c.name) {
+              <option [value]="c.name">{{ c.icon }} {{ c.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Note (optional)</span>
+          <input
+            type="text"
+            placeholder="e.g. Groceries at NSK"
+            [ngModel]="note()"
+            (ngModelChange)="note.set($event)"
+            name="note"
+          />
+        </label>
+
+        <label class="field">
+          <span>Date</span>
+          <input
+            type="date"
+            [ngModel]="date()"
+            (ngModelChange)="date.set($event)"
+            name="date"
+            required
+          />
+        </label>
+
+        <div class="field">
+          <span>Attachment (optional)</span>
+          @if (attachmentName()) {
+            <div class="attachment-chip">
+              <span class="attachment-name">📎 {{ attachmentName() }}</span>
+              <button type="button" (click)="removeAttachment()">✕</button>
+            </div>
+          } @else {
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              (change)="onAttachmentSelected($event)"
+              name="attachment"
+            />
+          }
+          @if (attachmentError()) {
+            <span class="attachment-error">{{ attachmentError() }}</span>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn primary" [class.income]="type() === 'income'">
+            {{ editing() ? "Save Changes" : "Add Transaction" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

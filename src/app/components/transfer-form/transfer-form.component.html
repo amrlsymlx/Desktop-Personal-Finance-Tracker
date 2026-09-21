@@ -1,0 +1,83 @@
+@if (open()) {
+  <div class="backdrop" (click)="cancel()">
+    <div class="modal modal-surface" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Transfer Between Wallets</h3>
+        <button class="icon-btn" (click)="cancel()" type="button">✕</button>
+      </div>
+
+      @if (error()) {
+        <div class="transfer-alert">{{ error() }}</div>
+      }
+
+      <form (ngSubmit)="submit()">
+        <label class="field">
+          <span>From</span>
+          <select
+            [ngModel]="fromAccountId()"
+            (ngModelChange)="fromAccountId.set($event)"
+            name="fromAccountId"
+          >
+            @for (a of accountsSvc.accounts(); track a.id) {
+              <option [value]="a.id">{{ a.icon }} {{ a.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>To</span>
+          <select
+            [ngModel]="toAccountId()"
+            (ngModelChange)="toAccountId.set($event)"
+            name="toAccountId"
+          >
+            @for (a of accountsSvc.accounts(); track a.id) {
+              <option [value]="a.id">{{ a.icon }} {{ a.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Amount</span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            [ngModel]="amount()"
+            (ngModelChange)="amount.set($event)"
+            name="amount"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Date</span>
+          <input
+            type="date"
+            [ngModel]="date()"
+            (ngModelChange)="date.set($event)"
+            name="date"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Note (optional)</span>
+          <input
+            type="text"
+            placeholder="e.g. Move to savings"
+            [ngModel]="note()"
+            (ngModelChange)="note.set($event)"
+            name="note"
+          />
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn primary">Transfer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

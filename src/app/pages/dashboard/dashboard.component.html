@@ -1,0 +1,142 @@
+<div class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="subtitle">Your financial overview, at a glance</p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <app-stat-card
+    label="Balance"
+    [value]="balanceLabel()"
+    icon="◎"
+    [tone]="accounts.totalBalance() >= 0 ? 'up' : 'down'"
+    sub="across all wallets"
+    [errorValue]="varianceErrorValue()"
+    [errorHint]="varianceErrorHint()"
+  />
+  <app-stat-card label="Income" [value]="incomeLabel()" icon="↑" tone="up" />
+  <app-stat-card label="Expenses" [value]="expenseLabel()" icon="↓" tone="down" />
+</div>
+
+<section class="panel glass wallets">
+  <div class="panel-head">
+    <h2>Wallets</h2>
+    <div class="panel-head-actions">
+      <button class="btn-add small ghost" (click)="openBalanceUpdate()">Real Balance Update</button>
+      <button class="btn-add small ghost" (click)="openTransferForm()">Transfer</button>
+      <button class="btn-add small icon-only" (click)="openWalletForm()" title="Add Wallet">
+        <span>+</span>
+      </button>
+    </div>
+  </div>
+
+  @if (walletError()) {
+    <div class="wallet-alert">
+      <span>{{ walletError() }}</span>
+      <button type="button" (click)="dismissWalletError()">✕</button>
+    </div>
+  }
+
+  <div
+    class="wallet-grid"
+    cdkDropList
+    cdkDropListOrientation="mixed"
+    [cdkDropListData]="accounts.accountsWithBalance()"
+    (cdkDropListDropped)="dropWallet($event)"
+  >
+    @for (acc of accounts.accountsWithBalance(); track acc.id) {
+      <div class="wallet-card" cdkDrag (click)="editWallet(acc, $event)">
+        <span class="wallet-drag-handle" cdkDragHandle (click)="$event.stopPropagation()">⠿</span>
+        <span class="wallet-icon" [style.background]="acc.color + '22'">{{ acc.icon }}</span>
+        <span class="wallet-info">
+          <span class="wallet-name">{{ acc.name }}</span>
+          <span class="wallet-balance" [class.down]="acc.balance < 0">{{ money(acc.balance) }}</span>
+          @if (acc.variance !== null) {
+            <span class="wallet-variance" [class.off]="varianceLabel(acc) !== '✓ Reconciled'">
+              {{ varianceLabel(acc) }}
+            </span>
+          }
+        </span>
+        <button
+          type="button"
+          class="wallet-delete"
+          title="Delete wallet"
+          (click)="deleteWallet(acc, $event)"
+        >
+          🗑
+        </button>
+      </div>
+    }
+  </div>
+</section>
+
+<section class="panel glass recent">
+  <div class="panel-head">
+    <h2>Recent Transactions</h2>
+    <a routerLink="/transactions" class="view-all">View all →</a>
+  </div>
+
+  @if (recentActivity().length) {
+    <ul class="tx-list">
+      @for (item of recentActivity(); track (item.kind === "tx" ? item.tx.id : item.transfer.id)) {
+        @if (item.kind === "tx") {
+          <li (click)="openEdit(item.tx)">
+            <span
+              class="tx-icon"
+              [style.background]="categoryMeta(item.tx.type, item.tx.category).color + '22'"
+            >
+              {{ categoryMeta(item.tx.type, item.tx.category).icon }}
+            </span>
+            <span class="tx-info">
+              <span class="tx-category">
+                {{ item.tx.category }}
+                @if (item.tx.attachmentDataUrl) {
+                  <span class="tx-attachment" title="Has attachment">📎</span>
+                }
+              </span>
+              <span class="tx-note">{{ item.tx.note || item.tx.date }} · {{ walletName(item.tx.accountId) }}</span>
+            </span>
+            <span class="tx-amount" [class.income]="item.tx.type === 'income'">
+              {{ item.tx.type === "income" ? "+" : "-" }}{{ money(item.tx.amount) }}
+            </span>
+          </li>
+        } @else {
+          <li class="transfer-row">
+            <span class="tx-icon transfer-icon">⇄</span>
+            <span class="tx-info">
+              <span class="tx-category">Transfer</span>
+              <span class="tx-note">
+                {{ walletName(item.transfer.fromAccountId) }} → {{ walletName(item.transfer.toAccountId) }}
+                @if (item.transfer.note) {
+                  · {{ item.transfer.note }}
+                }
+              </span>
+            </span>
+            <span class="tx-amount transfer-amount">{{ money(item.transfer.amount) }}</span>
+          </li>
+        }
+      }
+    </ul>
+  } @else {
+    <p class="empty">No transactions yet. Add your first one to get started.</p>
+  }
+</section>
+
+<app-transaction-form
+  [open]="formOpen()"
+  [editing]="editingTx()"
+  (saved)="handleSave($event)"
+  (closed)="closeForm()"
+/>
+
+<app-account-form
+  [open]="walletFormOpen()"
+  [editing]="editingAccount()"
+  (saved)="handleWalletSave($event)"
+  (closed)="closeWalletForm()"
+/>
+
+<app-balance-update [open]="balanceUpdateOpen()" (closed)="closeBalanceUpdate()" />
+
+<app-transfer-form [open]="transferFormOpen()" (closed)="closeTransferForm()" />

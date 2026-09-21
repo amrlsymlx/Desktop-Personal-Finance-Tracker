@@ -1,0 +1,76 @@
+<div class="page-head">
+  <div>
+    <h1>Transactions</h1>
+    <p class="subtitle">{{ filtered().length }} record(s)</p>
+  </div>
+</div>
+
+<div class="toolbar glass">
+  <input
+    type="text"
+    class="search"
+    placeholder="Search category or note..."
+    [ngModel]="search()"
+    (ngModelChange)="search.set($event)"
+  />
+  <div class="filter-group">
+    <button
+      type="button"
+      [class.active]="typeFilter() === 'all'"
+      (click)="typeFilter.set('all')"
+    >
+      All
+    </button>
+    <button
+      type="button"
+      [class.active]="typeFilter() === 'income'"
+      (click)="typeFilter.set('income')"
+    >
+      Income
+    </button>
+    <button
+      type="button"
+      [class.active]="typeFilter() === 'expense'"
+      (click)="typeFilter.set('expense')"
+    >
+      Expense
+    </button>
+  </div>
+</div>
+
+<section class="panel glass">
+  @if (filtered().length) {
+    <ul class="tx-list">
+      @for (tx of filtered(); track tx.id) {
+        <li (click)="openEdit(tx)">
+          <span class="tx-icon" [style.background]="categoryMeta(tx.type, tx.category).color + '22'">
+            {{ categoryMeta(tx.type, tx.category).icon }}
+          </span>
+          <span class="tx-info">
+            <span class="tx-category">
+              {{ tx.category }}
+              @if (tx.attachmentDataUrl) {
+                <span class="tx-attachment" title="Has attachment">📎</span>
+              }
+            </span>
+            <span class="tx-note">{{ tx.note || "No note" }} · {{ walletName(tx.accountId) }}</span>
+          </span>
+          <span class="tx-date">{{ tx.date }}</span>
+          <span class="tx-amount" [class.income]="tx.type === 'income'">
+            {{ tx.type === "income" ? "+" : "-" }}{{ money(tx.amount) }}
+          </span>
+          <button class="delete-btn" (click)="remove(tx.id, $event)" title="Delete">🗑</button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="empty">No transactions match your filters.</p>
+  }
+</section>
+
+<app-transaction-form
+  [open]="formOpen()"
+  [editing]="editingTx()"
+  (saved)="handleSave($event)"
+  (closed)="closeForm()"
+/>

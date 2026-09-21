@@ -1,0 +1,67 @@
+<div class="shell">
+  <aside class="sidebar glass">
+    <div class="brand">
+      <div class="brand-mark">◎</div>
+      <span class="brand-name">My<em>Fin</em></span>
+    </div>
+
+    <nav>
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+        >
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="pulse-dot"></div>
+      <span>Local data · synced on device</span>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <app-theme-toggle />
+    </div>
+    <router-outlet />
+  </main>
+</div>
+
+@if (fabMenuOpen()) {
+  <div class="fab-backdrop" (click)="closeFabMenu()"></div>
+}
+
+<div class="fab-wrap">
+  @if (fabMenuOpen()) {
+    <div class="fab-menu">
+      <button type="button" class="fab-option income" (click)="chooseType('income')">
+        <span class="fab-option-icon">↑</span> Income
+      </button>
+      <button type="button" class="fab-option expense" (click)="chooseType('expense')">
+        <span class="fab-option-icon">↓</span> Expense
+      </button>
+    </div>
+  }
+  <button
+    type="button"
+    class="fab"
+    [class.open]="fabMenuOpen()"
+    (click)="toggleFabMenu()"
+    title="Add Transaction"
+  >
+    +
+  </button>
+</div>
+
+<app-transaction-form
+  [open]="addFormOpen()"
+  [editing]="null"
+  [initialType]="addType()"
+  (saved)="handleAddSave($event)"
+  (closed)="closeAddForm()"
+/>
