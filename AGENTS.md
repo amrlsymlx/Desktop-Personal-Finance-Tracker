@@ -22,7 +22,7 @@ There is no lint script and no test suite. Rust prerequisites and OS packages ar
 - `src/app/app.component.*` – shell: sidebar, theme toggle, floating "+" add-transaction button
 - `src-tauri/` – minimal Rust shell (`lib.rs` only registers `tauri-plugin-opener`); `tauri.conf.json` has window/bundle config and the dev/build commands; `gen/` is generated
 
-## Architecture rules
+## Code style and architecture rules
 
 1. **Services own persistence; components never touch `localStorage`.** Each service keeps a private `signal()`, exposes it read-only, and syncs to `localStorage` through an `effect()` (keys `finance-tracker:accounts`, `:transactions`, `:theme`, etc.). Swapping storage later should only touch services.
 2. **Derived data is `computed()`, never stored.** Balances, totals, category breakdowns and the 6-month trend are computed from the raw signals. An account's balance is `startingBalance` + transaction deltas + transfer deltas; `variance` = reconciled `actualBalance` − computed balance.
@@ -32,6 +32,12 @@ There is no lint script and no test suite. Rust prerequisites and OS packages ar
 6. **Angular style**: standalone components with `inject()`, signals (`signal`/`computed`/`effect`), lazy `loadComponent` routes, no NgModules, no zone.js assumptions. Drag-and-drop reordering uses Angular CDK and writes an `order` field.
 7. **Theming** is `data-theme` on `<html>` driven by `ThemeService`; colours are CSS variables in `src/styles.css`. Add colours there, not inline.
 8. Keep Rust minimal; app logic belongs in the Angular side.
+9. Use the `uid()` pattern and string `id`s for new entities; format money only through `formatCurrency`.
+10. Touch only the files the request needs; no reformatting of unrelated code.
+
+## Testing
+
+No test suite or linter. After changes run `npm run build` (type-checks) and check the affected page in `npm start`. Saying a change is verified requires having done both; otherwise say what you didn't run.
 
 ## Data caveats
 
@@ -39,6 +45,11 @@ There is no lint script and no test suite. Rust prerequisites and OS packages ar
 - Attachments are stored as data URLs inside transactions (`attachmentDataUrl`), so they count against the `localStorage` quota.
 - Seeded defaults: a "Cash" wallet (`default-cash`) and the default categories in `category.model.ts`.
 
-## Git
+## Security
 
-- Don't commit or push unless asked. Short, imperative commit messages.
+No network calls, secrets or accounts exist. Tauri CSP is currently `null` in `tauri.conf.json`; don't load remote scripts or add network access without asking.
+
+## Commits and PRs
+
+- Don't commit or push unless asked.
+- Commit subjects are imperative and under 72 characters. Run `npm run build` before committing.
